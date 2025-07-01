@@ -1,0 +1,64 @@
+const board = document.getElementById('board');
+const statusText = document.getElementById('status');
+let currentPlayer = 'X';
+let gameState = Array(9).fill('');
+let gameActive = true;
+
+const winConditions = [
+  [0,1,2], [3,4,5], [6,7,8],
+  [0,3,6], [1,4,7], [2,5,8],
+  [0,4,8], [2,4,6]
+];
+
+function handleClick(e) {
+  const index = e.target.dataset.index;
+  if (!gameState[index] && gameActive) {
+    gameState[index] = currentPlayer;
+    e.target.textContent = currentPlayer;
+    checkResult();
+    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+    if (gameActive) statusText.textContent = `Player ${currentPlayer}'s turn`;
+  }
+}
+
+function checkResult() {
+  for (let condition of winConditions) {
+    const [a, b, c] = condition;
+    if (
+      gameState[a] &&
+      gameState[a] === gameState[b] &&
+      gameState[a] === gameState[c]
+    ) {
+      statusText.textContent = `Player ${gameState[a]} wins!`;
+      gameActive = false;
+      return;
+    }
+  }
+
+  if (!gameState.includes('')) {
+    statusText.textContent = "It's a draw!";
+    gameActive = false;
+  }
+}
+
+function resetGame() {
+  gameState = Array(9).fill('');
+  currentPlayer = 'X';
+  gameActive = true;
+  statusText.textContent = `Player X's turn`;
+  renderBoard();
+}
+
+function renderBoard() {
+  board.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.dataset.index = i;
+    cell.textContent = gameState[i];
+    cell.addEventListener('click', handleClick);
+    board.appendChild(cell);
+  }
+}
+
+renderBoard();
